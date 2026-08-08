@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coffee Youtube DL</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">LOCAL MEDIA TOOL</p>
+        <h1>Coffee Youtube DL</h1>
+        <p class="lede">動画は見やすく、音楽は軽く。用途に合わせて保存形式を選べます。</p>
+      </div>
+      <div id="toolStatus" class="status-pill checking"><span></span>ツールを確認中</div>
+    </header>
+
+    <section class="panel composer">
+      <form id="downloadForm">
+        <label class="field-label" for="url">YouTube URL</label>
+        <div class="url-row">
+          <input id="url" name="url" type="url" required autocomplete="off"
+                 placeholder="https://www.youtube.com/watch?v=...">
+          <button class="primary" type="submit">キューに追加</button>
+        </div>
+
+        <fieldset class="mode-switch" aria-label="保存モード">
+          <label>
+            <input type="radio" name="mode" value="video" checked>
+            <span><strong>動画</strong><small>映像と音声を保存</small></span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="audio">
+            <span><strong>音楽</strong><small>音声だけを軽量保存</small></span>
+          </label>
+        </fieldset>
+
+        <div id="videoOptions" class="option-grid">
+          <label>動画形式
+            <select id="videoFormat">
+              <option value="mp4">MP4・互換性優先</option>
+              <option value="efficient">MKV・容量効率優先</option>
+            </select>
+          </label>
+          <label>最大解像度
+            <select id="videoQuality">
+              <option value="1080">1080p</option>
+              <option value="720">720p</option>
+              <option value="480">480p</option>
+              <option value="1440">1440p</option>
+              <option value="2160">2160p / 4K</option>
+              <option value="best">制限なし</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="audioOptions" class="option-grid hidden">
+          <label>音声形式
+            <select id="audioFormat">
+              <option value="m4a" selected>M4A・Eagle／スマホ互換（推奨）</option>
+              <option value="original">元音質・Opus優先</option>
+              <option value="mp3">MP3・高互換</option>
+            </select>
+          </label>
+          <div id="formatHint" class="format-hint">Eagleやスマホとの互換性を優先。必要な場合はFFmpegで変換します。</div>
+        </div>
+
+        <label class="check-row">
+          <input id="playlist" type="checkbox">
+          <span>プレイリスト全体を保存する</span>
+        </label>
+
+        <p class="rights-note">自作コンテンツなど、保存する権利があるものだけを対象にしてください。</p>
+        <p id="formError" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section class="section-head converter-head">
+      <div><p class="eyebrow">LOCAL CONVERTER</p><h2>OpusをM4Aへ変換</h2></div>
+    </section>
+    <section class="panel converter-panel">
+      <p class="converter-copy">既存の.opusファイルをM4A（AAC 192kbps）へ変換します。元のOpusファイルは削除しません。</p>
+      <input id="conversionFile" class="visually-hidden" type="file" accept=".opus,audio/opus" multiple>
+      <div id="conversionDrop" class="drop-zone" tabindex="0" role="button" aria-label="複数のOpusファイルを選択">
+        <strong>複数のOpusファイルをドロップ</strong>
+        <span>または</span>
+        <button id="chooseOpus" class="ghost" type="button">ファイルを選択</button>
+      </div>
+      <div class="converter-settings">
+        <label class="converter-parallel">同時変換数
+          <select id="conversionParallelism">
+            <option value="1">1件・低負荷</option>
+            <option value="2" selected>2件・推奨</option>
+            <option value="4">4件・高速／高負荷</option>
+          </select>
+        </label>
+        <div class="acceleration-note">
+          <strong>変換エンジン</strong>
+          <span>CPU・FFmpeg AAC。M4A音声変換はGPUエンコード対象外です。</span>
+        </div>
+      </div>
+      <label class="check-row converter-eagle">
+        <input id="addToEagle" type="checkbox" checked>
+        <span>変換完了後にEagleへ自動登録する</span>
+      </label>
+      <div class="converter-actions">
+        <p id="conversionSelection">ファイルが選択されていません。</p>
+        <button id="convertOpus" class="primary" type="button" disabled>M4Aへ変換</button>
+      </div>
+      <p id="conversionError" class="error" role="alert"></p>
+    </section>
+
+    <section class="section-head">
+      <div><p class="eyebrow">DOWNLOAD QUEUE</p><h2>進行状況</h2></div>
+      <div class="folder-actions">
+        <button class="ghost" data-folder="audio">Musicを開く</button>
+        <button class="ghost" data-folder="video">Videosを開く</button>
+      </div>
+    </section>
+    <section id="jobs" class="jobs" aria-live="polite">
+      <div class="empty">まだジョブはありません。</div>
+    </section>
+
+    <details class="tool-detail">
+      <summary>必要ツールと保存先</summary>
+      <div id="toolDetail">確認中です…</div>
+    </details>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

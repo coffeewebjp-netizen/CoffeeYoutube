@@ -1,0 +1,6 @@
+build-cache/
+dist/
+downloads/*
+!downloads/.gitkeep
+tools/*.exe
+*.log

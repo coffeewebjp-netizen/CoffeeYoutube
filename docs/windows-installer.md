@@ -2,12 +2,12 @@
 
 ## 対象バージョン
 
-この文書は Coffee Youtube DL 0.1.0 のWindowsインストーラー実装を説明します。
+この文書は Coffee Youtube DL 0.1.1 のWindowsインストーラー実装を説明します。
 
 生成物は次の場所に出力されます。
 
 ~~~text
-dist/installer/CoffeeYoutubeDL-Setup-0.1.0.exe
+dist/installer/CoffeeYoutubeDL-Setup-0.1.1.exe
 ~~~
 
 `dist` と `build-cache` はGit管理対象外です。配布する場合は、ビルド後のSetup.exeを別途リリースへ添付してください。
@@ -38,7 +38,7 @@ dist/installer/CoffeeYoutubeDL-Setup-0.1.0.exe
 | スタートメニュー | `Coffee Youtube DL` |
 | デスクトップ | セットアップ画面で選択可能 |
 | アンインストール | Windows設定、またはインストール先の `Uninstall.exe` |
-| サイレントインストール | `CoffeeYoutubeDL-Setup-0.1.0.exe /S` |
+| サイレントインストール | `CoffeeYoutubeDL-Setup-0.1.1.exe /S` |
 | サイレントアンインストール | `Uninstall.exe /S` |
 
 インストール中に実行中のCoffee Youtube DLを検出した場合、GUIでは終了確認を表示します。サイレント実行では確認なしで終了させます。処理中のダウンロードがある状態で更新しないでください。
@@ -76,7 +76,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 
 
 今回の実装では次を確認しました。
 
-- `npm test`: 14テスト成功
+- `npm test`: 17テスト成功
 - インストーラーとアンインストーラーのC#コンパイル成功
 - Setup.exe内のペイロードとビルド元ZIPのSHA-256一致
 - ペイロード内にアプリ本体、yt-dlp、FFmpeg、FFprobe、Denoが存在
@@ -98,3 +98,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 
 - Setup.exeはElectron本体と各種ツールを含むため、ファイルサイズが大きくなります。
 - インストーラーのビルドには.NET Framework 4.xのC#コンパイラーが必要です。
 - yt-dlp、FFmpeg、Deno、Electronを更新した場合は、ポータブル版からインストーラーを再生成してください。
+- Electron 43.8.3はNode.js 24.22.0を含みます。2026年10月21日のNode.js 24系列のセキュリティ修正済みバージョンは24.22.1であり、このElectron版では同梱Node.jsの修正が未反映です。パッチ済みNode.jsを含むElectron安定版が公開されるまで、このローカルインストーラーをNode.js脆弱性の解消済みとして扱わないでください。

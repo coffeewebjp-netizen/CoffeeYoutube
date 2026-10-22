@@ -29,7 +29,7 @@ dist/CoffeeYoutubeDL-win32-x64/CoffeeYoutubeDL.exe
 インストーラー版は次の実行ファイルです。管理者権限は不要で、現在のユーザーだけにインストールされます。
 
 ~~~text
-dist/installer/CoffeeYoutubeDL-Setup-0.1.0.exe
+dist/installer/CoffeeYoutubeDL-Setup-0.1.1.exe
 ~~~
 
 スタートメニューへの登録、任意のデスクトップショートカット、Windowsの「インストールされているアプリ」からのアンインストールに対応しています。上書きインストール時は既存バージョンを安全に置き換えます。アンインストールしても、ダウンロード済みの動画・音楽は削除しません。
@@ -65,7 +65,7 @@ Windowsアプリの「OpusをM4Aへ変換」へ .opus ファイルをドラッ�
 npm run dist
 ~~~
 
-初回は公式Electron 43.2.0のWindows x64版を取得します。梱包スクリプトは公式の SHASUMS256.txt と照合してから展開し、次をポータブル版へ同梱します。
+公式Electron 43.8.3のWindows x64版を取得します。梱包スクリプトは公式の SHASUMS256.txt と照合してから展開し、次をポータブル版へ同梱します。
 
 - アプリ本体
 - yt-dlp
@@ -119,10 +119,14 @@ FFmpegは、高画質動画で別配信される映像と音声の結合、音�
 
 ## ソースから動かす場合に必要なもの
 
-- Node.js 18以上
+- ホストNode.jsは22.23.4、24.22.1、26.12.1以降（同じメジャー系列内）
 - yt-dlp.exe
 - ffmpeg.exeおよびffprobe.exe
-- Deno 2.3以上、またはNode.js 22以上
+- yt-dlpのJavaScript実行用にDeno 2.3以上、または上記のNode.js
+
+## Node.jsのセキュリティ状況
+
+2026年10月23日時点で、同梱Electron 43.8.3はNode.js 24.22.0を含みます。これはNode.js 24系列の10月21日セキュリティ修正済み最小バージョン24.22.1より前です。現在のElectron安定版にはこのNode.js修正がまだ含まれていないため、このローカルビルドでElectron内のNode.js脆弱性は解消されません。ElectronのNode.js更新版が公開されたら、確認後に再ビルドしてください。
 
 実行ファイルをプロジェクト直下の tools フォルダへ置くと自動検出します。PATHに登録済みのツールも利用できます。
 

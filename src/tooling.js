@@ -42,6 +42,25 @@ function majorVersion(value) {
   return match ? Number(match[1]) : 0;
 }
 
+const MINIMUM_NODE_BY_MAJOR = new Map([
+  [22, [23, 4]],
+  [24, [22, 1]],
+  [26, [12, 1]],
+]);
+
+function isSupportedNodeRuntime(value) {
+  const match = String(value || '').match(/^v?(\d+)\.(\d+)\.(\d+)$/);
+  if (!match) return false;
+
+  const [, majorText, minorText, patchText] = match;
+  const version = [Number(majorText), Number(minorText), Number(patchText)];
+  const minimum = MINIMUM_NODE_BY_MAJOR.get(version[0]);
+  if (!minimum) return false;
+
+  return version[1] > minimum[0]
+    || (version[1] === minimum[0] && version[2] >= minimum[1]);
+}
+
 async function inspectTools(root) {
   const ytDlpPath = localOrPath(root, 'yt-dlp.exe', 'yt-dlp');
   const ffmpegPath = localOrPath(root, 'ffmpeg.exe', 'ffmpeg');
@@ -60,7 +79,7 @@ async function inspectTools(root) {
   let jsRuntime = null;
   if (deno.available && majorVersion(deno.version) >= 2) {
     jsRuntime = { name: 'deno', path: denoPath };
-  } else if (node.available && majorVersion(node.version) >= 22) {
+  } else if (node.available && isSupportedNodeRuntime(node.version)) {
     jsRuntime = { name: 'node', path: nodePath };
   }
 
@@ -74,4 +93,4 @@ async function inspectTools(root) {
   };
 }
 
-module.exports = { inspectTools, majorVersion, probe };
+module.exports = { inspectTools, isSupportedNodeRuntime, majorVersion, probe };

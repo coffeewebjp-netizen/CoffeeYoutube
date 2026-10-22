@@ -1,6 +1,6 @@
 {
   "name": "coffee-youtube-dl",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "権利を保有するコンテンツ向けのローカルメディア保存ツール",
   "main": "electron/main.js",
@@ -11,6 +11,6 @@
     "installer": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-installer.ps1"
   },
   "engines": {
-    "node": ">=18"
+    "node": "^22.23.4 || ^24.22.1 || ^26.12.1"
   }
 }

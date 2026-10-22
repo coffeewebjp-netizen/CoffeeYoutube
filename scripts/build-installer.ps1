@@ -1,5 +1,5 @@
 param(
-  [string]$ElectronVersion = '43.2.0',
+  [string]$ElectronVersion = '43.8.3',
   [switch]$SkipPortableBuild
 )
 

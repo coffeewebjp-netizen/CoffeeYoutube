@@ -2,12 +2,12 @@
 
 ## 対象バージョン
 
-この文書は Coffee Youtube DL 0.1.1 のWindowsインストーラー実装を説明します。
+この文書は Coffee Youtube DL 0.1.2 のWindowsインストーラー実装を説明します。
 
 生成物は次の場所に出力されます。
 
 ~~~text
-dist/installer/CoffeeYoutubeDL-Setup-0.1.1.exe
+dist/0.1.2/installer/CoffeeYoutubeDL-Setup-0.1.2.exe
 ~~~
 
 `dist` と `build-cache` はGit管理対象外です。配布する場合は、ビルド後のSetup.exeを別途リリースへ添付してください。
@@ -24,6 +24,7 @@ dist/installer/CoffeeYoutubeDL-Setup-0.1.1.exe
 - GUIを使わない導入・削除用に `/S` と `/silent` を実装
 - Windows実行マニフェストを追加し、SideBySide起動エラーを修正
 - npmスクリプト、README、ビルド手順を更新
+- ポータブル版とインストーラーをバージョン別 `dist/0.1.2` に出力し、直前版を上書きしない
 
 アンインストールではアプリ本体、ショートカット、アンインストール登録を削除します。ユーザーがダウンロードした動画・音楽は削除しません。
 
@@ -38,7 +39,7 @@ dist/installer/CoffeeYoutubeDL-Setup-0.1.1.exe
 | スタートメニュー | `Coffee Youtube DL` |
 | デスクトップ | セットアップ画面で選択可能 |
 | アンインストール | Windows設定、またはインストール先の `Uninstall.exe` |
-| サイレントインストール | `CoffeeYoutubeDL-Setup-0.1.1.exe /S` |
+| サイレントインストール | `CoffeeYoutubeDL-Setup-0.1.2.exe /S` |
 | サイレントアンインストール | `Uninstall.exe /S` |
 
 インストール中に実行中のCoffee Youtube DLを検出した場合、GUIでは終了確認を表示します。サイレント実行では確認なしで終了させます。処理中のダウンロードがある状態で更新しないでください。
@@ -74,22 +75,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 
 
 ## 検証内容
 
-今回の実装では次を確認しました。
+0.1.2のパッケージで次を確認しました。
 
 - `npm test`: 17テスト成功
+- Electron 43.8.4のWindows x64アーカイブを公式 `SHASUMS256.txt` と照合
+- 生成したポータブル実行ファイルをNodeモードで起動し、`process.versions` がElectron 43.8.4／Node.js 24.22.1であることを確認
+- インストーラー内のZIPペイロードとビルドしたポータブルアプリの一致をSHA-256で確認
 - インストーラーとアンインストーラーのC#コンパイル成功
 - Setup.exe内のペイロードとビルド元ZIPのSHA-256一致
 - ペイロード内にアプリ本体、yt-dlp、FFmpeg、FFprobe、Denoが存在
-- 最終Setup.exeから抽出した実行マニフェストをWindows Manifest Toolで検証
-- 同じマニフェストを使用した最小検証EXEの起動成功
+- 既存の `app.manifest` を指定したインストーラー／アンインストーラーのコンパイル成功
 
-実ユーザー領域へ書き込むインストール／アンインストールの自動実行は、安全上の理由から検証手順に含めていません。
+実ユーザー領域へ書き込むインストール／アンインストールの自動実行は、安全上の理由から検証手順に含めていません。この0.1.2検証では、既存のインストール済みアプリを置き換えていません。
+0.1.2では最終Setup.exeからRT_MANIFESTリソースを抽出し、Windows SDKの `mt.exe -validate_manifest` で検証しました。Setup.exe自体は起動していません。0.1.1の実装時に行ったマニフェスト検証は当時の記録です。
+
+0.1.2のビルド記録:
+
+- Electron公式Windows x64アーカイブ `electron-v43.8.4-win32-x64.zip`: 151,289,398 bytes、SHA-256 `C9974747EE3FEEB338BE107D431EB7E53D4A3F37A6FD9AF85F7AE554CD9385B8`。ダウンロードしたアーカイブは公式 `SHASUMS256.txt` の値と一致しました。
+- ポータブル版 `dist/0.1.2/CoffeeYoutubeDL-win32-x64/CoffeeYoutubeDL.exe`: 239,181,312 bytes、SHA-256 `044280E7AE08D1CBB29DF983C5BBA08AEB134FD9FE700C617EBECC18BF3849AF`。
+- インストーラー `dist/0.1.2/installer/CoffeeYoutubeDL-Setup-0.1.2.exe`: 271,446,016 bytes、SHA-256 `C3B4F2BA736407FAB1EAA1EAEEF0196EDC79DD29BD44581EBB5641727096483D`。未署名です。
+- Setup内のZIPリソースと生成したペイロードは同じSHA-256 `6CC48CA11FA5DD8353DA28C4D51E6D38E1A9E4F66CE74E53CC894DF66C3E4897` で、Setup内CoffeeYoutubeDL.exeのSHA-256もポータブル版と一致しました。
+- ポータブル版を `ELECTRON_RUN_AS_NODE=1` でヘッドレス実行した `process.versions` は Electron `43.8.4`、Node.js `24.22.1`、Chromium `150.0.7871.250` でした。
 
 ## SideBySideエラーの修正
 
 初回生成物では、埋め込みマニフェストのXML属性を囲む引用符が欠落していました。Windowsはアプリ本体を実行する前にマニフェストを解析するため、この不正なXMLによって「サイド バイ サイド構成が正しくない」という起動エラーが発生しました。
 
-`scripts/installer/app.manifest` の属性を正しいXML形式へ修正し、Windows Manifest Toolの `-validate_manifest` で最終Setup.exeに埋め込まれた内容を検証しています。
+0.1.1の修正では、`scripts/installer/app.manifest` の属性を正しいXML形式へ修正し、Windows Manifest Toolの `-validate_manifest` で最終Setup.exeに埋め込まれた内容を検証しました。0.1.2でも同じマニフェストを指定してC#コンパイルが成功し、最終Setup.exeに埋め込まれたRT_MANIFESTも検証しました。
 
 ## 既知の制約
 
@@ -98,4 +110,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 
 - Setup.exeはElectron本体と各種ツールを含むため、ファイルサイズが大きくなります。
 - インストーラーのビルドには.NET Framework 4.xのC#コンパイラーが必要です。
 - yt-dlp、FFmpeg、Deno、Electronを更新した場合は、ポータブル版からインストーラーを再生成してください。
-- Electron 43.8.3はNode.js 24.22.0を含みます。2026年10月21日のNode.js 24系列のセキュリティ修正済みバージョンは24.22.1であり、このElectron版では同梱Node.jsの修正が未反映です。パッチ済みNode.jsを含むElectron安定版が公開されるまで、このローカルインストーラーをNode.js脆弱性の解消済みとして扱わないでください。
+- Electron 43.8.4はNode.js 24.22.1を含み、2026年10月21日のNode.js 24系列のセキュリティ修正版を同梱しています（[Electron release notes](https://github.com/electron/electron/releases/tag/v43.8.4)、[Node.js 24.22.1 release](https://nodejs.org/en/blog/release/v24.22.1)）。以前の43.8.3以前のビルドはこの修正を含みません。

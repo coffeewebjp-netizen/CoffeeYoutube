@@ -23,13 +23,13 @@ NetflixなどのDRM保護サービス、画面録画、DRM回避、Eagleへの�
 生成済みポータブル版は次の実行ファイルから起動します。
 
 ~~~text
-dist/CoffeeYoutubeDL-win32-x64/CoffeeYoutubeDL.exe
+dist/0.1.2/CoffeeYoutubeDL-win32-x64/CoffeeYoutubeDL.exe
 ~~~
 
 インストーラー版は次の実行ファイルです。管理者権限は不要で、現在のユーザーだけにインストールされます。
 
 ~~~text
-dist/installer/CoffeeYoutubeDL-Setup-0.1.1.exe
+dist/0.1.2/installer/CoffeeYoutubeDL-Setup-0.1.2.exe
 ~~~
 
 スタートメニューへの登録、任意のデスクトップショートカット、Windowsの「インストールされているアプリ」からのアンインストールに対応しています。上書きインストール時は既存バージョンを安全に置き換えます。アンインストールしても、ダウンロード済みの動画・音楽は削除しません。
@@ -65,7 +65,7 @@ Windowsアプリの「OpusをM4Aへ変換」へ .opus ファイルをドラッ�
 npm run dist
 ~~~
 
-公式Electron 43.8.3のWindows x64版を取得します。梱包スクリプトは公式の SHASUMS256.txt と照合してから展開し、次をポータブル版へ同梱します。
+公式Electron 43.8.4のWindows x64版を取得します。梱包スクリプトは公式の SHASUMS256.txt と照合してから展開し、次をポータブル版へ同梱します。バージョンごとに `dist/0.1.2/` へ出力するため、以前のポータブル版とインストーラーは上書きされません。
 
 - アプリ本体
 - yt-dlp
@@ -126,7 +126,7 @@ FFmpegは、高画質動画で別配信される映像と音声の結合、音�
 
 ## Node.jsのセキュリティ状況
 
-2026年10月23日時点で、同梱Electron 43.8.3はNode.js 24.22.0を含みます。これはNode.js 24系列の10月21日セキュリティ修正済み最小バージョン24.22.1より前です。現在のElectron安定版にはこのNode.js修正がまだ含まれていないため、このローカルビルドでElectron内のNode.js脆弱性は解消されません。ElectronのNode.js更新版が公開されたら、確認後に再ビルドしてください。
+2026年10月28日時点で、Electron 43.8.4はNode.js 24.22.1を含みます。これはNode.js 24系列の2026年10月21日セキュリティ修正済みリリースです（[Electron 43.8.4 release notes](https://github.com/electron/electron/releases/tag/v43.8.4)、[Node.js 24.22.1 release](https://nodejs.org/en/blog/release/v24.22.1)）。43.8.3以前のビルドはNode.js 24.22.0以前を含むため、この修正を含みません。
 
 実行ファイルをプロジェクト直下の tools フォルダへ置くと自動検出します。PATHに登録済みのツールも利用できます。
 

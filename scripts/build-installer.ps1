@@ -1,16 +1,23 @@
 param(
-  [string]$ElectronVersion = '43.8.3',
+  [string]$ElectronVersion = '43.8.4',
   [switch]$SkipPortableBuild
 )
 
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$packageRoot = Join-Path $projectRoot 'dist/CoffeeYoutubeDL-win32-x64'
-$installerOutputRoot = Join-Path $projectRoot 'dist/installer'
-$buildRoot = Join-Path $projectRoot 'build-cache/installer'
-$sourceRoot = Join-Path $PSScriptRoot 'installer'
 $packageJsonPath = Join-Path $projectRoot 'package.json'
+$packageJson = Get-Content -LiteralPath $packageJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$displayVersion = [string]$packageJson.version
+if ($displayVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$') {
+  throw "package.json contains an unsupported version: $displayVersion"
+}
+
+$versionRoot = Join-Path (Join-Path $projectRoot 'dist') $displayVersion
+$packageRoot = Join-Path $versionRoot 'CoffeeYoutubeDL-win32-x64'
+$installerOutputRoot = Join-Path $versionRoot 'installer'
+$buildRoot = Join-Path (Join-Path $projectRoot 'build-cache/installer') $displayVersion
+$sourceRoot = Join-Path $PSScriptRoot 'installer'
 
 if (-not $SkipPortableBuild) {
   & (Join-Path $PSScriptRoot 'package-windows.ps1') -ElectronVersion $ElectronVersion
@@ -19,12 +26,6 @@ if (-not $SkipPortableBuild) {
 $appExecutable = Join-Path $packageRoot 'CoffeeYoutubeDL.exe'
 if (-not (Test-Path -LiteralPath $appExecutable)) {
   throw "Portable app is missing: $appExecutable. Run npm run dist first."
-}
-
-$packageJson = Get-Content -LiteralPath $packageJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$displayVersion = [string]$packageJson.version
-if ($displayVersion -notmatch '^\d+\.\d+\.\d+(?:[-+].*)?$') {
-  throw "package.json contains an unsupported version: $displayVersion"
 }
 
 $numericVersion = ($displayVersion -split '[-+]')[0]

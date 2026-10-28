@@ -1,13 +1,21 @@
 param(
-  [string]$ElectronVersion = '43.8.3'
+  [string]$ElectronVersion = '43.8.4'
 )
 
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$packageJsonPath = Join-Path $projectRoot 'package.json'
+$packageJson = Get-Content -LiteralPath $packageJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$displayVersion = [string]$packageJson.version
+if ($displayVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$') {
+  throw "package.json contains an unsupported version: $displayVersion"
+}
+
 $cacheRoot = Join-Path $projectRoot 'build-cache'
 $distRoot = Join-Path $projectRoot 'dist'
-$packageRoot = Join-Path $distRoot 'CoffeeYoutubeDL-win32-x64'
+$versionRoot = Join-Path $distRoot $displayVersion
+$packageRoot = Join-Path $versionRoot 'CoffeeYoutubeDL-win32-x64'
 $archiveName = "electron-v$ElectronVersion-win32-x64.zip"
 $archivePath = Join-Path $cacheRoot $archiveName
 $partialPath = $archivePath + '.partial'
